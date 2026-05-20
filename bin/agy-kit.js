@@ -34,7 +34,7 @@ OPTIONS:
   --skill   Skill name (matches .agent/skills/<name>/SKILL.md)
   --note    Requirement/task description
   --dir     Working directory (default: current dir)
-  --agent   Agent to use: agy | claude | codex (default: agy)
+  --agent   Agent to use: gemini | claude | codex | agy (default: gemini)
   --timeout Timeout in seconds (default: 600)
 
 EXAMPLES:
@@ -48,7 +48,7 @@ async function cmdRun(flags) {
   const skill = flags.skill;
   const note = flags.note;
   const workDir = resolve(flags.dir || process.cwd());
-  const agent = flags.agent || 'agy';
+  const agent = flags.agent || 'gemini';
   const timeout = parseInt(flags.timeout || '600') * 1000;
 
   if (!skill) { console.error('Error: --skill is required'); process.exit(1); }
@@ -77,7 +77,13 @@ async function cmdRun(flags) {
 
   // Run agent
   const startTime = Date.now();
-  const result = runAgent(prompt, workDir, agent, timeout);
+  let result;
+  try {
+    result = await runAgent(prompt, workDir, agent, timeout);
+  } catch (e) {
+    console.error(`[agy-kit] Agent error: ${e.message}`);
+    process.exit(1);
+  }
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
 
   console.log(`[agy-kit] Done in ${elapsed}s (exit: ${result.exitCode})\n`);
