@@ -79,7 +79,7 @@ async function cmdRun(flags) {
   const startTime = Date.now();
   let result;
   try {
-    result = await runAgent(prompt, workDir, agent, timeout);
+    result = await runAgent(prompt, workDir, agent, timeout, skill, note);
   } catch (e) {
     console.error(`[agy-kit] Agent error: ${e.message}`);
     process.exit(1);
