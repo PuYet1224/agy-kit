@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readSkill } from '../lib/skill-reader.js';
+import { readSkill, listSkills } from '../lib/skill-reader.js';
 import { buildPrompt } from '../lib/prompt-builder.js';
 import { runAgent } from '../lib/agent-runner.js';
 import { parseAndWriteFiles, hasFileBlocks } from '../lib/output-parser.js';
@@ -137,25 +137,12 @@ function scanModifiedFiles(workDir, sinceMs) {
 
 function cmdList(flags) {
   const workDir = resolve(flags.dir || process.cwd());
-  const dirs = [
-    join(workDir, '.agent', 'skills'),
-    join(workDir, '.claude', 'skills'),
-    join(workDir, '.agents', 'skills'),
-  ];
-  const skills = [];
-  for (const dir of dirs) {
-    if (!existsSync(dir)) continue;
-    for (const entry of readdirSync(dir)) {
-      if (existsSync(join(dir, entry, 'SKILL.md'))) {
-        skills.push({ name: entry, dir });
-      }
-    }
-  }
-  if (skills.length === 0) {
-    console.log('No skills found in current directory.');
+  const items = listSkills(workDir);
+  if (items.length === 0) {
+    console.log('No skills or workflows found in current directory.');
   } else {
-    console.log(`Found ${skills.length} skill(s):\n`);
-    skills.forEach(s => console.log(`  ${s.name.padEnd(20)} ${s.dir}`));
+    console.log(`Found ${items.length} item(s):\n`);
+    items.forEach(s => console.log(`  ${s.name.padEnd(24)} [${s.type}]  ${s.dir}`));
   }
 }
 
